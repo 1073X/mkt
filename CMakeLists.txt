@@ -2,12 +2,5 @@ cmake_minimum_required (VERSION 3.19)
 project("${CMAKE_PROJECT_NAME}")
 include("$ENV{TOOLCHAIN_PATH}/CMakeLists.txt.in")
 
-add_lib("lib${CMAKE_PROJECT_NAME}" "source/lib")
-
-add_bin("${CMAKE_PROJECT_NAME}" "source/bin"
-    lib${CMAKE_PROJECT_NAME}
-)
-
-add_unittest(lib${CMAKE_PROJECT_NAME} ${LIB_COM})
-
-add_benchmark(lib${CMAKE_PROJECT_NAME})
+add_lib("libmkt" "source/lib")
+add_unittest(libmkt ${LIB_REF} ${LIB_SHM} ${LIB_CFG} ${LIB_LOG} ${LIB_COM})

@@ -1,11 +1,11 @@
 #!/usr/bin/bash
 
-PROJECT_NAME=project
+PROJECT_NAME=mkt
 BUILD_VERBOSE=OFF
 source $TOOLCHAIN_PATH/build.in
 
 if [[ $1 == "command" ]]; then
-    echo "project specific command"
+    echo "mkt specific command"
 
 else
      echo "ERROR: unknown command"
