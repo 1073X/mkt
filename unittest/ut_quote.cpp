@@ -17,7 +17,7 @@ TEST(ut_quote, default) {
     EXPECT_EQ(0, quote.depth_id());
 }
 
-TEST(ut_quote, set_values) {
+TEST(ut_quote, set_value) {
     miu::mkt::quote quote;
 
     auto time = miu::time::clock::now();
