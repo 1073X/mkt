@@ -12,7 +12,7 @@ class ring {
   public:
     static auto resolve_size(uint32_t capacity) {
         if (!capacity || CLZ(capacity) + CTZ(capacity) != 31) {
-            FATAL_ERROR("line capacity should be pow of 2", capacity);
+            FATAL_ERROR("ring capacity should be pow of 2", capacity);
         }
         return sizeof(H) + sizeof(T) * capacity;
     }
@@ -21,23 +21,16 @@ class ring {
     auto index() const { return _head.index; }
 
     auto at(uint32_t i) { return (T*)(&_head + 1) + (i & _head.mask); }
-
-    template<typename CB>
-    auto next(CB const& cb) {
-        cb(at(index()));
-        _head.index++;
-    }
+    auto at(uint32_t i) const { return const_cast<ring*>(this)->at(i); }
 
   protected:
     static ring* make(void* buf, uint32_t len, uint32_t capacity) {
         if (resolve_size(capacity) > len) {
-            FATAL_ERROR("lack of space", len, "<", capacity);
+            FATAL_ERROR("lack of space to make ring", len, "<", capacity);
         }
 
-        auto ptr         = new (buf) ring {};
-        ptr->_head.mask  = capacity - 1;
-        ptr->_head.index = 0;
-
+        auto ptr        = (ring*)buf;
+        ptr->_head.mask = capacity - 1;
         return ptr;
     }
 
