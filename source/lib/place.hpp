@@ -12,15 +12,9 @@ namespace miu::mkt {
 
 class place {
   public:
-    static auto resolve_size(uint32_t num_of_instruments,
-                             uint32_t quote_per_line,
-                             uint32_t num_of_depth) {
-        return sizeof(place)
-             //
-             + num_of_instruments * quote_ring::resolve_size(quote_per_line)
-             //
-             + depth_ring::resolve_size(num_of_depth);
-    }
+    static uint32_t resolve_size(uint32_t max_of_instrument,
+                                 uint32_t quote_per_line,
+                                 uint32_t num_of_depth);
 
     static place* make(void* buf,
                        uint32_t len,
@@ -31,39 +25,27 @@ class place {
 
     static place* open(void* buf) { return (place*)buf; }
 
-  private:
-    place(ref::signature db_sign)
-        : _db_sign(db_sign) {}
-
-    auto paddings() { return _paddings; }
-
   public:
     std::string_view name() const { return _name; }
 
     std::string_view db_name() const { return _db_name; }
     ref::signature db_sign() const { return _db_sign; }
 
-    quote_ring* get_quote_ring(uint32_t id) {
-        if (id < _num_of_instruments) {
-            auto addr = (char*)this + sizeof(place);
-            return (quote_ring*)(addr + id * _quote_ring_size);
-        }
-        return nullptr;
-    }
+    auto num_of_instrument() const { return _num_of_instrument; }
 
-    depth* get_depth(uint32_t id) {
-        auto addr = (char*)this + _depth_ring_offset;
-        return ((depth_ring*)addr)->at(id);
-    }
+    quote_ring* get_quotes(uint32_t id);
+    depth_ring* get_depths();
+
+    auto padding() const { return _padding; }
 
   private:
     char _name[16] {};
     char _db_name[16] {};
     ref::signature _db_sign;
-    uint32_t _num_of_instruments;
+    uint32_t _num_of_instrument;
     uint32_t _quote_ring_size;
     uint32_t _depth_ring_offset;
-    uint32_t _paddings[1];
+    uint32_t _padding;
 };
 static_assert(sizeof(quote_ring) == sizeof(place));
 

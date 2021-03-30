@@ -14,7 +14,7 @@ namespace details {
     struct quote_ring {
         time::stamp time;
         ref::symbol symbol;
-        uint32_t inst_id;
+        uint32_t id;
         uint32_t mask;
         uint32_t index;
         uint32_t num_of_obs;
@@ -36,11 +36,17 @@ class quote_ring : public ring<details::quote_ring, quote> {
     auto symbol() const { return head()->symbol; }
     auto set_symbol(ref::symbol v) { head()->symbol = v; }
 
-    auto instrument_id() const { return head()->inst_id; }
-    auto set_instrument_id(uint32_t v) { head()->inst_id = v; }
+    auto id() const { return head()->id; }
+    auto set_id(uint32_t v) { head()->id = v; }
 
     auto num_of_obs() const { return head()->num_of_obs; }
     auto subscribe() { head()->num_of_obs++; }
+
+    template<typename CB>
+    auto next(CB const& cb) {
+        cb(at(index()));
+        head()->index++;
+    }
 };
 static_assert(sizeof(quote) == sizeof(quote_ring));
 
