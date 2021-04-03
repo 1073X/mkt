@@ -1,11 +1,13 @@
 #pragma once
 
+#include <log/log.hpp>
 #include <map>
 #include <ref/database.hpp>
 #include <svc/furnace.hpp>
 #include <time/stamp.hpp>
 
 #include "mkt/adapter.hpp"
+#include "mkt/reg_var_str.hpp"
 #include "mkt/version.hpp"
 
 namespace miu::mkt {
@@ -37,6 +39,11 @@ class furnace : public svc::furnace {
     std::string_view build_info() const override { return mkt::build_info(); }
 
     void ignite(cfg::settings const& settings) override {
+        reg_var_str();
+
+        log::info(+"mkt VER", mkt::version());
+        log::info(+"adp VER", version());
+
         auto adapters = settings.required<cfg::settings>("adapters");
         for (auto i = 0U; i < adapters.size(); i++) {
             auto adapter_settings = adapters.required<cfg::settings>(i);
