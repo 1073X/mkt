@@ -17,8 +17,9 @@ namespace details {
         uint32_t id;
         uint32_t mask;
         uint32_t index;
-        uint32_t num_of_obs;
-        uint32_t paddings[8];
+        uint32_t is_observed;
+        uint32_t is_subscribed;
+        uint32_t paddings[7];
     };
 
 }    // namespace details
@@ -26,7 +27,9 @@ namespace details {
 class quote_ring : public ring<details::quote_ring, quote> {
   public:
     static auto make(void* buf, uint32_t len, uint32_t capacity) {
-        return (quote_ring*)ring<details::quote_ring, quote>::make(buf, len, capacity);
+        auto ptr = (quote_ring*)ring<details::quote_ring, quote>::make(buf, len, capacity);
+        ptr->unsubscribe();
+        return ptr;
     }
 
   public:
@@ -39,14 +42,12 @@ class quote_ring : public ring<details::quote_ring, quote> {
     auto id() const { return head()->id; }
     auto set_id(uint32_t v) { head()->id = v; }
 
-    auto num_of_obs() const { return head()->num_of_obs; }
-    auto subscribe() { head()->num_of_obs++; }
+    auto is_observed() const { return head()->is_observed; }
+    auto observe() { head()->is_observed = 1; }
 
-    template<typename CB>
-    auto next(CB const& cb) {
-        cb(at(index()));
-        head()->index++;
-    }
+    auto is_subscribed() const { return head()->is_subscribed; }
+    auto subscribe() { head()->is_subscribed = 1; }
+    void unsubscribe() { head()->is_subscribed = 0; }
 };
 static_assert(sizeof(quote) == sizeof(quote_ring));
 

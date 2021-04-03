@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "source/lib/quote_ring.hpp"
+#include "source/lib/mkt/quote_ring.hpp"
 
 using miu::mkt::quote_ring;
 
@@ -18,7 +18,7 @@ TEST(ut_quote_ring, default) {
     EXPECT_EQ(miu::ref::symbol {}, ring->symbol());
     EXPECT_EQ(0U, ring->id());
     EXPECT_EQ(miu::time::stamp {}, ring->time());
-    EXPECT_EQ(0U, ring->num_of_obs());
+    EXPECT_EQ(0U, ring->is_observed());
 }
 
 TEST(ut_quote_ring, set_value) {
@@ -36,10 +36,12 @@ TEST(ut_quote_ring, set_value) {
     ring->set_id(12);
     EXPECT_EQ(12U, ring->id());
 
+    ring->observe();
+    EXPECT_EQ(1U, ring->is_observed());
+
+    EXPECT_EQ(0U, ring->is_subscribed());
     ring->subscribe();
-    EXPECT_EQ(1U, ring->num_of_obs());
-    ring->subscribe();
-    EXPECT_EQ(2U, ring->num_of_obs());
+    EXPECT_EQ(1U, ring->is_subscribed());
 }
 
 TEST(ut_quote_ring, get) {
@@ -54,39 +56,16 @@ TEST(ut_quote_ring, get) {
     EXPECT_EQ((miu::mkt::quote const*)(ring + 3), ring->at(10));
 }
 
-TEST(ut_quote_ring, next) {
-    char buf[4096] {};
-    auto ring = quote_ring::make(buf, sizeof(buf), 8);
-
-    ring->next([](auto quote) { quote->set_last(1); });
-    ring->next([](auto quote) { quote->set_last(2); });
-
-    EXPECT_EQ(1, ring->at(0)->last());
-    EXPECT_EQ(2, ring->at(1)->last());
-
-    // wrapping
-    for (auto i = ring->index(); i < ring->capacity(); i++) {
-        ring->next([i](auto quote) { quote->set_last(i); });
-    }
-
-    ring->next([](auto quote) { quote->set_last(10); });
-    ring->next([](auto quote) { quote->set_last(20); });
-
-    EXPECT_EQ(10, ring->at(0)->last());
-    EXPECT_EQ(20, ring->at(1)->last());
-}
-
 TEST(ut_quote_ring, index) {
     char buf[4096] {};
     {
         auto ring = quote_ring::make(buf, sizeof(buf), 8);
-        ring->next([](auto) {});
+        EXPECT_EQ(0U, ring->index());
+        ring->inc_index();
         EXPECT_EQ(1U, ring->index());
-        ring->next([](auto) {});
-        EXPECT_EQ(2U, ring->index());
     }
 
     // keep index
     auto ring = quote_ring::make(buf, sizeof(buf), 8);
-    EXPECT_EQ(2U, ring->index());
+    EXPECT_EQ(1U, ring->index());
 }

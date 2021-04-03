@@ -7,7 +7,7 @@
 
 namespace miu::mkt {
 
-static auto do_subscribe(quote_ring* quotes, depth_ring const* depths) {
+static auto do_subscribe(quote_ring* quotes, depth_ring* depths) {
     log::debug(+"mkt SUB",
                quotes->index(),
                quotes->time(),
@@ -17,15 +17,12 @@ static auto do_subscribe(quote_ring* quotes, depth_ring const* depths) {
                quotes->index(),
                quotes->symbol());
 
-    quotes->subscribe();
+    quotes->observe();
     return topic { quotes, depths };
 }
 
 source::source(std::string_view name)
     : _buf({ name, "mkt" }, shm::mode::RDWR) {
-    if (!_buf) {
-        log::error(+"mkt LOAD [", name, +"] failed.");
-    }
 }
 
 topic source::subscribe(uint32_t instrument_id) {

@@ -11,10 +11,12 @@ class depth_ring;
 class topic {
   public:
     topic() = default;
-    topic(quote_ring const*, depth_ring const*);
+    topic(quote_ring*, depth_ring*);
 
     auto operator!() const { return !_quotes; }
     operator bool() const { return !operator!(); }
+
+    bool is_subscribed() const;
 
     uint16_t id() const;
     ref::symbol symbol() const;
@@ -38,9 +40,9 @@ class topic {
 
     uint32_t refresh();
 
-  private:
-    quote_ring const* _quotes { nullptr };
-    depth_ring const* _depths { nullptr };
+  protected:
+    quote_ring* _quotes { nullptr };
+    depth_ring* _depths { nullptr };
     uint32_t _index { 0 };
 };
 
