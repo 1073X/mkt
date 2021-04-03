@@ -9,6 +9,15 @@
 #include "source/lib/mkt/place.hpp"
 #include "source/lib/svc/furnace.hpp"
 
+namespace miu::svc {
+std::string_view concrete_version() {
+    return "abc";
+}
+std::string_view concrete_build_info() {
+    return "abc";
+}
+}    // namespace miu::svc
+
 struct adapter : public miu::mkt::adapter {
     void init(miu::cfg::settings const&) override { inited++; }
     void connect() override { connected++; }
@@ -27,7 +36,7 @@ miu::mkt::adapter* miu::mkt::create_adapter() {
 
 struct ut_furnace : public testing::Test {
     void SetUp() override {
-        miu::log::reset(miu::log::severity::DEBUG, 1024);
+        // miu::log::reset(miu::log::severity::DEBUG, 1024);
 
         stub.db();    // lazy creating
         furnace.reset(miu::svc::create());
@@ -45,11 +54,6 @@ struct ut_furnace : public testing::Test {
     miu::ref::stub stub;
     std::unique_ptr<miu::svc::furnace> furnace;
 };
-
-TEST_F(ut_furnace, version) {
-    EXPECT_EQ(miu::mkt::version(), furnace->version());
-    EXPECT_EQ(miu::mkt::build_info(), furnace->build_info());
-}
 
 TEST_F(ut_furnace, create_adapters) {
     miu::com::json spec;
