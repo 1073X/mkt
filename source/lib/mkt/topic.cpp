@@ -11,7 +11,7 @@ namespace miu::mkt {
 #define QUOTE _quotes->at(_index)
 #define DEPTH _depths->at(QUOTE->depth_id())
 
-topic::topic(quote_ring const* quotes, depth_ring const* depths)
+topic::topic(quote_ring* quotes, depth_ring* depths)
     : _quotes(quotes)
     , _depths(depths)
     , _index { _quotes->index() - 1 } {
@@ -23,6 +23,10 @@ uint16_t topic::id() const {
 
 ref::symbol topic::symbol() const {
     return _quotes->symbol();
+}
+
+bool topic::is_subscribed() const {
+    return _quotes->is_subscribed();
 }
 
 ref::price topic::bid() const {

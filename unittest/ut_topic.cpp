@@ -3,7 +3,7 @@
 #include <stub/ref.hpp>
 
 #include "mkt/topic.hpp"
-#include "source/lib/place.hpp"
+#include "source/lib/mkt/place.hpp"
 
 struct ut_topic : public testing::Test {
     miu::ref::stub stub;
@@ -28,11 +28,14 @@ TEST_F(ut_topic, create) {
     EXPECT_EQ(0.0, topic.turnover());
     EXPECT_EQ(0, topic.total_vol());
     EXPECT_EQ(0, topic.open_interest());
+
+    EXPECT_FALSE(topic.is_subscribed());
 }
 
 TEST_F(ut_topic, refresh) {
     auto quotes = place->get_quotes(1);
-    quotes->next([](auto quote) { quote->set_last(1); });
+    quotes->at(0)->set_last(1);
+    quotes->inc_index();
 
     auto depths = place->get_depths();
     miu::mkt::topic topic { quotes, depths };
@@ -41,14 +44,19 @@ TEST_F(ut_topic, refresh) {
 
     EXPECT_EQ(0U, topic.refresh());
 
-    quotes->next([](auto quote) { quote->set_last(2); });
+    quotes->at(1)->set_last(2);
+    quotes->inc_index();
     EXPECT_EQ(1U, topic.refresh());
     EXPECT_EQ(2.0, topic.last());
+
+    quotes->subscribe();
+    EXPECT_TRUE(topic.is_subscribed());
 }
 
 TEST_F(ut_topic, depth) {
     auto quotes = place->get_quotes(1);
-    quotes->next([](auto quote) { quote->set_depth_id(5); });
+    quotes->at(0)->set_depth_id(5);
+    quotes->inc_index();
 
     auto depths = place->get_depths();
     depths->at(5)->set_bid(1, 1.2);

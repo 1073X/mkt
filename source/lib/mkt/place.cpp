@@ -16,9 +16,9 @@ namespace details {
     }
 }    // namespace details
 
-uint32_t place::resolve_size(uint32_t max_of_instrument,
-                             uint32_t quote_per_line,
-                             uint32_t num_of_depth) {
+uint32_t place::resolve_size(uint16_t max_of_instrument,
+                             uint16_t quote_per_line,
+                             uint16_t num_of_depth) {
     return sizeof(place)
          //
          + max_of_instrument * quote_ring::resolve_size(quote_per_line)
@@ -26,7 +26,7 @@ uint32_t place::resolve_size(uint32_t max_of_instrument,
          + depth_ring::resolve_size(num_of_depth);
 }
 
-quote_ring* place::get_quotes(uint32_t id) {
+quote_ring* place::get_quotes(uint16_t id) {
     if (id < _num_of_instrument) {
         auto addr = (char*)this + sizeof(place);
         return (quote_ring*)(addr + id * _quote_ring_size);
@@ -40,10 +40,10 @@ depth_ring* place::get_depths() {
 }
 
 place* place::make(void* buf,
-                   uint32_t len,
+                   uint16_t len,
                    ref::database const* db,
-                   uint32_t quote_per_line,
-                   uint32_t num_of_depth,
+                   uint16_t quote_per_line,
+                   uint16_t num_of_depth,
                    std::string_view name) {
     // verifying
     if (resolve_size(db->max_of_instrument(), quote_per_line, num_of_depth) > len) {

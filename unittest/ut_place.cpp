@@ -4,7 +4,7 @@
 #include <stub/ref.hpp>
 
 #include "mkt/reg_var_str.hpp"
-#include "source/lib/place.hpp"
+#include "source/lib/mkt/place.hpp"
 
 using miu::mkt::depth_ring;
 using miu::mkt::quote_ring;
@@ -68,3 +68,14 @@ TEST_F(ut_place, get_depths) {
     auto ring = (depth_ring*)(place + 1 + stub.db()->max_of_instrument() * 9);
     EXPECT_EQ(4U, ring->capacity());
 }
+
+TEST_F(ut_place, is_connected) {
+    EXPECT_FALSE(place->is_connected());
+
+    place->set_connected(1);
+    EXPECT_TRUE(place->is_connected());
+
+    place->set_connected(0);
+    EXPECT_FALSE(place->is_connected());
+}
+

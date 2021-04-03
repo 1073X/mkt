@@ -6,12 +6,12 @@
 
 #include "mkt/reg_var_str.hpp"
 #include "mkt/source.hpp"
-#include "source/lib/place.hpp"
+#include "source/lib/mkt/place.hpp"
 
 struct ut_source : public testing::Test {
     void SetUp() override {
         miu::mkt::reg_var_str();
-        miu::log::reset(miu::log::severity::DEBUG, 1024);
+        // miu::log::reset(miu::log::severity::DEBUG, 1024);
 
         miu::shm::buffer buf { { stub.marker(), "mkt" }, 8192 };
         miu::mkt::place::make(buf.data(), buf.size(), stub.db(), 8, 4, stub.marker());
@@ -52,7 +52,7 @@ TEST_F(ut_source, observer) {
     miu::shm::buffer buf { { stub.marker(), "mkt" }, 8192 };
     auto place  = miu::mkt::place::open(buf.data());
     auto quotes = place->get_quotes(1);
-    EXPECT_EQ(1U, quotes->num_of_obs());
+    EXPECT_EQ(1U, quotes->is_observed());
 }
 
 TEST_F(ut_source, subscribe_by_symbol) {

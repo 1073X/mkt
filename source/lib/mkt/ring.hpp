@@ -18,7 +18,9 @@ class ring {
     }
 
     auto capacity() const { return _head.mask + 1; }
+
     auto index() const { return _head.index; }
+    auto inc_index() { return _head.index++; }
 
     auto at(uint32_t i) { return (T*)(&_head + 1) + (i & _head.mask); }
     auto at(uint32_t i) const { return const_cast<ring*>(this)->at(i); }
