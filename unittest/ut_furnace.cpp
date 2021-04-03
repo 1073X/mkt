@@ -27,6 +27,8 @@ miu::mkt::adapter* miu::mkt::create_adapter() {
 
 struct ut_furnace : public testing::Test {
     void SetUp() override {
+        miu::log::reset(miu::log::severity::DEBUG, 1024);
+
         stub.db();    // lazy creating
         furnace.reset(miu::svc::create());
         miu::shm::tempfs::remove(stub.marker(), "mkt");
@@ -37,6 +39,7 @@ struct ut_furnace : public testing::Test {
         miu::shm::tempfs::remove("A", stub.marker(), "mkt");
         miu::shm::tempfs::remove("B", stub.marker(), "mkt");
         miu::shm::tempfs::remove(stub.marker(), "mkt");
+        miu::log::dump();
     }
 
     miu::ref::stub stub;
