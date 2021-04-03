@@ -78,4 +78,3 @@ TEST_F(ut_place, is_connected) {
     place->set_connected(0);
     EXPECT_FALSE(place->is_connected());
 }
-

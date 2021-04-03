@@ -37,9 +37,11 @@ delivery:
 
         - mkdir -p $DBG_PATH
         - cp -fv debug/libmkt.a $DBG_PATH
+        - cp -fv debug/libmktsvc.a $DBG_PATH
 
         - mkdir -p $REL_PATH
         - cp -fv release/libmkt.a $REL_PATH
+        - cp -fv release/libmktsvc.a $REL_PATH
 
         - mkdir -p $UT_PATH
         - cp -fv release/ut_mkt $UT_PATH

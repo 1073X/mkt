@@ -4,12 +4,12 @@
 #include <shm/tempfs.hpp>
 #include <stub/ref.hpp>
 
-#include "mkt/engine.hpp"
+#include "mkt/adapter.hpp"
 #include "mkt/reg_var_str.hpp"
 #include "source/lib/mkt/place.hpp"
 
-struct ut_engine : public testing::Test {
-    struct engine : public miu::mkt::engine {
+struct ut_adapter : public testing::Test {
+    struct adapter : public miu::mkt::adapter {
         MOCK_METHOD(void, subscribe, (miu::ref::instrument), (override));
         MOCK_METHOD(void, init, (miu::cfg::settings const&), (override));
         MOCK_METHOD(void, uninit, (), (override));
@@ -30,14 +30,14 @@ struct ut_engine : public testing::Test {
     miu::ref::stub stub;
 };
 
-TEST_F(ut_engine, create) {
+TEST_F(ut_adapter, create) {
     {
-        struct engine engine;
-        EXPECT_FALSE(engine);
-        engine.make(stub.marker(), stub.db(), 16, 4);
-        EXPECT_TRUE(engine);
+        struct adapter adapter;
+        EXPECT_FALSE(adapter);
+        adapter.make(stub.marker(), stub.db(), 16, 4);
+        EXPECT_TRUE(adapter);
 
-        EXPECT_EQ(stub.db(), engine.database());
+        EXPECT_EQ(stub.db(), adapter.database());
     }
     EXPECT_TRUE(miu::shm::tempfs::exists(stub.marker(), "mkt"));
 
@@ -49,74 +49,70 @@ TEST_F(ut_engine, create) {
     EXPECT_EQ(stub.db()->num_of_instrument(), place->num_of_instrument());
 }
 
-TEST_F(ut_engine, get_next_by_id) {
-    struct engine engine;
-    engine.make(stub.marker(), stub.db(), 16, 4);
+TEST_F(ut_adapter, get_next_by_id) {
+    struct adapter adapter;
+    adapter.make(stub.marker(), stub.db(), 16, 4);
 
-    auto renewal = engine.get_next(1);
+    auto renewal = adapter.get_next(1);
     ASSERT_TRUE(renewal);
     EXPECT_EQ(1U, renewal.id());
     EXPECT_EQ(stub.db()->find(1).symbol(), renewal.symbol());
 
-    EXPECT_FALSE(engine.get_next(stub.db()->num_of_instrument()));
+    EXPECT_FALSE(adapter.get_next(stub.db()->num_of_instrument()));
 }
 
-TEST_F(ut_engine, get_next_by_symbol) {
-    struct engine engine;
-    engine.make(stub.marker(), stub.db(), 16, 4);
+TEST_F(ut_adapter, get_next_by_symbol) {
+    struct adapter adapter;
+    adapter.make(stub.marker(), stub.db(), 16, 4);
 
     auto inst    = stub.db()->find(2);
-    auto renewal = engine.get_next(inst.symbol());
+    auto renewal = adapter.get_next(inst.symbol());
     ASSERT_TRUE(renewal);
     EXPECT_EQ(2U, renewal.id());
-    std::cout << miu::com::to_string(inst.symbol()) << std::endl;
-    std::cout << miu::com::to_string(renewal.symbol()) << std::endl;
     EXPECT_EQ(inst.symbol(), renewal.symbol());
 
-    EXPECT_FALSE(engine.get_next(miu::ref::symbol("SSE/STOCK/123")));
+    EXPECT_FALSE(adapter.get_next(miu::ref::symbol("SSE/STOCK/123")));
 }
 
-TEST_F(ut_engine, get_next_by_mkt_code) {
-    struct engine engine;
-    engine.make(stub.marker(), stub.db(), 16, 4);
+TEST_F(ut_adapter, get_next_by_mkt_code) {
+    struct adapter adapter;
+    adapter.make(stub.marker(), stub.db(), 16, 4);
 
     auto inst    = stub.db()->find(2);
-    auto renewal = engine.get_next_by_mkt_code(inst.mkt_code());
+    auto renewal = adapter.get_next_by_mkt_code(inst.mkt_code());
     ASSERT_TRUE(renewal);
     EXPECT_EQ(2U, renewal.id());
-    std::cout << miu::com::to_string(inst.symbol()) << std::endl;
-    std::cout << miu::com::to_string(renewal.symbol()) << std::endl;
     EXPECT_EQ(inst.symbol(), renewal.symbol());
 
-    EXPECT_FALSE(engine.get_next_by_mkt_code("not_exists"));
+    EXPECT_FALSE(adapter.get_next_by_mkt_code("not_exists"));
 }
 
-TEST_F(ut_engine, notify_connected) {
-    struct engine engine;
-    engine.make(stub.marker(), stub.db(), 16, 4);
+TEST_F(ut_adapter, notify_connected) {
+    struct adapter adapter;
+    adapter.make(stub.marker(), stub.db(), 16, 4);
 
-    EXPECT_FALSE(engine.is_connected());
+    EXPECT_FALSE(adapter.is_connected());
 
-    engine.notify_connected();
-    EXPECT_TRUE(engine.is_connected());
+    adapter.notify_connected();
+    EXPECT_TRUE(adapter.is_connected());
 
-    engine.notify_disconnected();
-    EXPECT_FALSE(engine.is_connected());
+    adapter.notify_disconnected();
+    EXPECT_FALSE(adapter.is_connected());
 }
 
-TEST_F(ut_engine, notify_subscribed) {
-    struct engine engine;
-    engine.make(stub.marker(), stub.db(), 16, 4);
-    engine.notify_subscribed(1);
+TEST_F(ut_adapter, notify_subscribed) {
+    struct adapter adapter;
+    adapter.make(stub.marker(), stub.db(), 16, 4);
+    adapter.notify_subscribed(1);
 
     miu::shm::buffer buf { { stub.marker(), "mkt" }, miu::shm::mode::READ };
     auto place = miu::mkt::place::open(buf.data());
     EXPECT_TRUE(place->get_quotes(1)->is_subscribed());
 }
 
-TEST_F(ut_engine, discover) {
-    struct engine engine;
-    engine.make(stub.marker(), stub.db(), 16, 4);
+TEST_F(ut_adapter, discover) {
+    struct adapter adapter;
+    adapter.make(stub.marker(), stub.db(), 16, 4);
 
     miu::shm::buffer buf { { stub.marker(), "mkt" }, miu::shm::mode::READ };
     auto place = miu::mkt::place::open(buf.data());
@@ -124,27 +120,27 @@ TEST_F(ut_engine, discover) {
     place->get_quotes(2)->observe();
     place->get_quotes(3)->observe();
 
-    EXPECT_CALL(engine, subscribe(testing::_)).Times(2);
-    engine.discover();
+    EXPECT_CALL(adapter, subscribe(testing::_)).Times(2);
+    adapter.discover();
 }
 
-TEST_F(ut_engine, discover_when_disconnected) {
-    struct engine engine;
-    engine.make(stub.marker(), stub.db(), 16, 4);
+TEST_F(ut_adapter, discover_when_disconnected) {
+    struct adapter adapter;
+    adapter.make(stub.marker(), stub.db(), 16, 4);
 
     miu::shm::buffer buf { { stub.marker(), "mkt" }, miu::shm::mode::READ };
     auto place = miu::mkt::place::open(buf.data());
     place->get_quotes(2)->observe();
 
-    // should not subscribe to engine implementation
-    EXPECT_CALL(engine, subscribe(testing::_)).Times(0);
-    engine.discover();
+    // should not subscribe to adapter implementation
+    EXPECT_CALL(adapter, subscribe(testing::_)).Times(0);
+    adapter.discover();
 }
 
-TEST_F(ut_engine, discover_subscribed) {
-    struct engine engine;
-    engine.make(stub.marker(), stub.db(), 16, 4);
-    engine.notify_subscribed(3);
+TEST_F(ut_adapter, discover_subscribed) {
+    struct adapter adapter;
+    adapter.make(stub.marker(), stub.db(), 16, 4);
+    adapter.notify_subscribed(3);
 
     miu::shm::buffer buf { { stub.marker(), "mkt" }, miu::shm::mode::READ };
     auto place = miu::mkt::place::open(buf.data());
@@ -152,21 +148,21 @@ TEST_F(ut_engine, discover_subscribed) {
     place->get_quotes(1)->observe();
     place->get_quotes(3)->observe();
 
-    EXPECT_CALL(engine, subscribe(testing::_)).Times(1);    // only once for instrument 1
-    engine.discover();
+    EXPECT_CALL(adapter, subscribe(testing::_)).Times(1);    // only once for instrument 1
+    adapter.discover();
 }
 
-TEST_F(ut_engine, clean_subscribed) {
-    struct engine engine;
-    engine.make(stub.marker(), stub.db(), 16, 4);
+TEST_F(ut_adapter, clean_subscribed) {
+    struct adapter adapter;
+    adapter.make(stub.marker(), stub.db(), 16, 4);
 
     // suppose that we have 3 subscriptions
-    engine.notify_subscribed(3);
-    engine.notify_subscribed(2);
-    engine.notify_subscribed(1);
+    adapter.notify_subscribed(3);
+    adapter.notify_subscribed(2);
+    adapter.notify_subscribed(1);
 
     // and then we try discovering when it is disconnected
-    engine.discover();
+    adapter.discover();
 
     // subscribed flags should be removed
     miu::shm::buffer buf { { stub.marker(), "mkt" }, miu::shm::mode::READ };

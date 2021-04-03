@@ -9,7 +9,7 @@
 #include "source/lib/mkt/place.hpp"
 #include "source/lib/svc/furnace.hpp"
 
-struct engine : public miu::mkt::engine {
+struct adapter : public miu::mkt::adapter {
     void init(miu::cfg::settings const&) override { inited++; }
     void connect() override { connected++; }
     void subscribe(miu::ref::instrument) override {}
@@ -21,8 +21,8 @@ struct engine : public miu::mkt::engine {
     inline static uint32_t uninitped { 0 };
 };
 
-miu::mkt::engine* miu::mkt::create_engine() {
-    return new ::engine {};
+miu::mkt::adapter* miu::mkt::create_adapter() {
+    return new ::adapter {};
 }
 
 struct ut_furnace : public testing::Test {
@@ -48,21 +48,21 @@ TEST_F(ut_furnace, version) {
     EXPECT_EQ(miu::mkt::build_info(), furnace->build_info());
 }
 
-TEST_F(ut_furnace, create_engines) {
+TEST_F(ut_furnace, create_adapters) {
     miu::com::json spec;
 
-    miu::com::json engine_a;
-    engine_a["name"]           = "A." + stub.marker();
-    engine_a["database"]       = stub.marker();
-    engine_a["quote_per_line"] = 16;
-    engine_a["num_of_quote"]   = 8;
-    spec["engines"].push_back(engine_a);
-    miu::com::json engine_b;
-    engine_b["name"]           = "B." + stub.marker();
-    engine_b["database"]       = stub.marker();
-    engine_b["quote_per_line"] = 16;
-    engine_b["num_of_quote"]   = 8;
-    spec["engines"].push_back(engine_b);
+    miu::com::json adapter_a;
+    adapter_a["name"]           = "A." + stub.marker();
+    adapter_a["database"]       = stub.marker();
+    adapter_a["quote_per_line"] = 16;
+    adapter_a["num_of_quote"]   = 8;
+    spec["adapters"].push_back(adapter_a);
+    miu::com::json adapter_b;
+    adapter_b["name"]           = "B." + stub.marker();
+    adapter_b["database"]       = stub.marker();
+    adapter_b["quote_per_line"] = 16;
+    adapter_b["num_of_quote"]   = 8;
+    spec["adapters"].push_back(adapter_b);
 
     miu::cfg::json_source source { "spec", spec };
     miu::cfg::settings settings { &source };
@@ -71,13 +71,13 @@ TEST_F(ut_furnace, create_engines) {
     ASSERT_NE(nullptr, ptr);
 
     ptr->ignite(settings);
-    EXPECT_EQ(2U, engine::inited);
+    EXPECT_EQ(2U, adapter::inited);
 
     EXPECT_TRUE(miu::shm::tempfs::exists("A", stub.marker(), "mkt"));
     EXPECT_TRUE(miu::shm::tempfs::exists("B", stub.marker(), "mkt"));
 
     ptr->finish();
-    EXPECT_EQ(2U, engine::uninitped);
+    EXPECT_EQ(2U, adapter::uninitped);
 }
 
 TEST_F(ut_furnace, connect) {
@@ -85,12 +85,12 @@ TEST_F(ut_furnace, connect) {
 
     miu::com::json spec;
 
-    miu::com::json engine;
-    engine["name"]           = stub.marker();
-    engine["database"]       = stub.marker();
-    engine["quote_per_line"] = 16;
-    engine["num_of_quote"]   = 8;
-    spec["engines"].push_back(engine);
+    miu::com::json adapter;
+    adapter["name"]           = stub.marker();
+    adapter["database"]       = stub.marker();
+    adapter["quote_per_line"] = 16;
+    adapter["num_of_quote"]   = 8;
+    spec["adapters"].push_back(adapter);
 
     miu::cfg::json_source source { "spec", spec };
     miu::cfg::settings settings { &source };
@@ -100,12 +100,12 @@ TEST_F(ut_furnace, connect) {
 
     auto now = miu::time::clock::now();
     ptr->connect(now);
-    EXPECT_EQ(1U, engine::connected);
+    EXPECT_EQ(1U, adapter::connected);
 
     ptr->connect(now + 1s);    // interval
-    EXPECT_EQ(1U, engine::connected);
+    EXPECT_EQ(1U, adapter::connected);
     ptr->connect(now + 31s);    // interval
-    EXPECT_EQ(2U, engine::connected);
+    EXPECT_EQ(2U, adapter::connected);
 
     {
         auto buf   = miu::shm::buffer { { stub.marker(), "mkt" }, miu::shm::mode::RDWR };
@@ -114,6 +114,5 @@ TEST_F(ut_furnace, connect) {
     }
 
     ptr->connect(now + 5min);    // has connected
-    EXPECT_EQ(2U, engine::connected);
+    EXPECT_EQ(2U, adapter::connected);
 }
-

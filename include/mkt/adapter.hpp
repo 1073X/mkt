@@ -8,10 +8,10 @@
 
 namespace miu::mkt {
 
-class engine {
+class adapter {
   public:
-    engine() = default;
-    virtual ~engine() {}
+    adapter()          = default;
+    virtual ~adapter() = default;
 
     void make(std::string_view name,
               ref::database const*,
@@ -49,6 +49,6 @@ class engine {
     ref::database const* _db { nullptr };
 };
 
-extern engine* create_engine();
+extern adapter* create_adapter();
 
 }    // namespace miu::mkt
