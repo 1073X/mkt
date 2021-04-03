@@ -5,7 +5,7 @@
 #include <svc/furnace.hpp>
 #include <time/stamp.hpp>
 
-#include "mkt/engine.hpp"
+#include "mkt/adapter.hpp"
 #include "mkt/version.hpp"
 
 namespace miu::mkt {
@@ -22,7 +22,7 @@ namespace details {
             dbs.emplace(db_name, db);
         }
 
-        std::unique_ptr<engine> ptr { create_engine() };
+        std::unique_ptr<adapter> ptr { create_adapter() };
         ptr->make(name, &dbs[db_name], quote_per_line, num_of_depth);
         return ptr.release();
     }
@@ -30,18 +30,18 @@ namespace details {
 
 class furnace : public svc::furnace {
   public:
-    ~furnace() { quench(); }
+    ~furnace() override { furnace::quench(); }
 
   public:    // implement svc::furnace
     std::string_view version() const override { return mkt::version(); }
     std::string_view build_info() const override { return mkt::build_info(); }
 
     void ignite(cfg::settings const& settings) override {
-        auto engines = settings.required<cfg::settings>("engines");
-        for (auto i = 0U; i < engines.size(); i++) {
-            auto engine_settings = engines.required<cfg::settings>(i);
-            _engines.push_back(details::create(engine_settings, _dbs));
-            _engines.back()->init(engine_settings);
+        auto adapters = settings.required<cfg::settings>("adapters");
+        for (auto i = 0U; i < adapters.size(); i++) {
+            auto adapter_settings = adapters.required<cfg::settings>(i);
+            _adapters.push_back(details::create(adapter_settings, _dbs));
+            _adapters.back()->init(adapter_settings);
         }
 
         static time::delta const MIN_LAG { 1'000'000 };    // 1s
@@ -50,11 +50,11 @@ class furnace : public svc::furnace {
     }
 
     void quench() override {
-        for (auto engine : _engines) {
-            engine->uninit();
-            delete engine;
+        for (auto adapter : _adapters) {
+            adapter->uninit();
+            delete adapter;
         }
-        _engines.clear();
+        _adapters.clear();
 
         _dbs.clear();
     }
@@ -62,9 +62,9 @@ class furnace : public svc::furnace {
     auto connect(time::stamp now) {
         static std::chrono::seconds const INTERVAL { 30 };
         if (now - _last_connect_time > INTERVAL) {
-            for (auto engine : _engines) {
-                if (!engine->is_connected()) {
-                    engine->connect();
+            for (auto adapter : _adapters) {
+                if (!adapter->is_connected()) {
+                    adapter->connect();
                 }
             }
             _last_connect_time = now;
@@ -77,19 +77,19 @@ class furnace : public svc::furnace {
             auto now = time::clock::now();
             connect(now);
 
-            for (auto engine : _engines) {
-                engine->discover();
+            for (auto adapter : _adapters) {
+                adapter->discover();
             }
         }
 
-        for (auto engine : _engines) {
-            engine->disconnect();
+        for (auto adapter : _adapters) {
+            adapter->disconnect();
         }
     }
 
   private:
     std::map<std::string, ref::database> _dbs;
-    std::vector<mkt::engine*> _engines;
+    std::vector<mkt::adapter*> _adapters;
 
     time::stamp _last_connect_time;
 };

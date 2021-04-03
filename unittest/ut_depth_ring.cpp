@@ -20,4 +20,3 @@ TEST(ut_depth_ring, next) {
     // DO NOT TOUCH 0
     EXPECT_EQ(9U, ring->next());
 }
-

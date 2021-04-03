@@ -40,8 +40,8 @@ TEST_F(ut_renewal, depth) {
 TEST_F(ut_renewal, increase_index) {
     auto quotes = place->get_quotes(1);
     EXPECT_EQ(0U, quotes->index());
-    miu::mkt::renewal { quotes, place->get_depths() };    // deconstructor
+    miu::mkt::renewal { quotes, place->get_depths() };    // NOLINT: explicitly deconstruct
     EXPECT_EQ(1U, quotes->index());
-    miu::mkt::renewal { quotes, place->get_depths() };    // deconstructor
+    miu::mkt::renewal { quotes, place->get_depths() };    // NOLINT: explicitly deconstruct
     EXPECT_EQ(2U, quotes->index());
 }
