@@ -35,14 +35,10 @@ class furnace : public svc::furnace {
     ~furnace() override { furnace::quench(); }
 
   public:    // implement svc::furnace
-    std::string_view version() const override { return mkt::version(); }
-    std::string_view build_info() const override { return mkt::build_info(); }
-
     void ignite(cfg::settings const& settings) override {
         reg_var_str();
 
         log::info(+"mkt VER", mkt::version());
-        log::info(+"adp VER", version());
 
         auto adapters = settings.required<cfg::settings>("adapters");
         for (auto i = 0U; i < adapters.size(); i++) {
