@@ -26,8 +26,12 @@ struct ut_source : public testing::Test {
 };
 
 TEST_F(ut_source, create) {
-    EXPECT_TRUE(miu::mkt::source { stub.marker() });
+    miu::mkt::source source { stub.marker() };
+    EXPECT_TRUE(source);
+    EXPECT_EQ(stub.marker(), source.db_name());
+}
 
+TEST_F(ut_source, empty) {
     auto source = miu::mkt::source {};
     EXPECT_FALSE(source);
     EXPECT_FALSE(source.subscribe(0));
