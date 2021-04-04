@@ -3,6 +3,7 @@
 #include <cfg/settings.hpp>
 #include <ref/database.hpp>
 #include <shm/buffer.hpp>
+#include <svc/furnace.hpp>
 
 #include "renewal.hpp"
 
@@ -14,6 +15,7 @@ class adapter {
     virtual ~adapter() = default;
 
     void make(std::string_view name,
+              svc::furnace*,
               ref::database const*,
               uint32_t quote_per_line,
               uint32_t num_of_depth);
@@ -24,7 +26,7 @@ class adapter {
     std::string_view name() const;
 
   public:
-    auto database() const { return _db; }
+    auto database() const { return _database; }
 
     renewal get_next(uint32_t instrument_id);
     renewal get_next(ref::symbol);
@@ -37,6 +39,12 @@ class adapter {
 
     void notify_subscribed(uint16_t instrument_id);
 
+    template<typename... ARGS>
+    auto add_task(ARGS&&... args) {
+        assert(_furnace != nullptr);
+        return _furnace->add_task(std::forward<ARGS>(args)...);
+    }
+
   public:
     virtual void init(cfg::settings const&) = 0;
     virtual void connect()                  = 0;
@@ -48,7 +56,8 @@ class adapter {
 
   private:
     shm::buffer _buf;
-    ref::database const* _db { nullptr };
+    svc::furnace* _furnace { nullptr };
+    ref::database const* _database { nullptr };
 };
 
 extern adapter* create_adapter();

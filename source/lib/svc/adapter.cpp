@@ -8,13 +8,15 @@
 namespace miu::mkt {
 
 void adapter::make(std::string_view name,
+                   svc::furnace* furnace,
                    ref::database const* db,
                    uint32_t quote_per_line,
                    uint32_t num_of_depth) {
     assert(!_buf && "adapter has been inited");
     assert(*db && "invalid database");
 
-    _db = db;
+    _furnace  = furnace;
+    _database = db;
 
     auto size = place::resolve_size(db->max_of_instrument(), quote_per_line, num_of_depth);
     _buf      = shm::buffer { { name, "mkt" }, size };
@@ -59,7 +61,7 @@ renewal adapter::get_next(uint32_t instrument_id) {
 }
 
 renewal adapter::get_next(ref::symbol symbol) {
-    auto inst = _db->find(symbol);
+    auto inst = _database->find(symbol);
     if (!inst) {
         return {};
     }
@@ -67,7 +69,7 @@ renewal adapter::get_next(ref::symbol symbol) {
 }
 
 renewal adapter::get_next_by_mkt_code(std::string_view code) {
-    auto inst = _db->find_by_mkt_code(code);
+    auto inst = _database->find_by_mkt_code(code);
     if (!inst) {
         return {};
     }
@@ -87,7 +89,7 @@ void adapter::discover() {
         for_each([&](auto quotes) {
             if (quotes->is_observed() && !quotes->is_subscribed()) {
                 log::debug(+"mkt SUBSCRIBE", name(), quotes->id(), quotes->symbol());
-                subscribe(_db->find(quotes->id()));
+                subscribe(_database->find(quotes->id()));
             }
         });
 
