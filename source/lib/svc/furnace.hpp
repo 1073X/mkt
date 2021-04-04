@@ -13,7 +13,9 @@
 namespace miu::mkt {
 
 namespace details {
-    static auto create(cfg::settings const& settings, std::map<std::string, ref::database>& dbs) {
+    static auto create(cfg::settings const& settings,
+                       svc::furnace* furnace,
+                       std::map<std::string, ref::database>& dbs) {
         auto name           = settings.required<std::string>("name");
         auto db_name        = settings.required<std::string>("database");
         auto quote_per_line = settings.optional<uint32_t>("quote_per_line", 64);
@@ -25,7 +27,7 @@ namespace details {
         }
 
         std::unique_ptr<adapter> ptr { create_adapter() };
-        ptr->make(name, &dbs[db_name], quote_per_line, num_of_depth);
+        ptr->make(name, furnace, &dbs[db_name], quote_per_line, num_of_depth);
 
         log::debug(+"mkt NEW adapter",
                    name,
@@ -50,7 +52,7 @@ class furnace : public svc::furnace {
         auto adapters = settings.required<cfg::settings>("adapters");
         for (auto i = 0U; i < adapters.size(); i++) {
             auto adapter_settings = adapters.required<cfg::settings>(i);
-            _adapters.push_back(details::create(adapter_settings, _dbs));
+            _adapters.push_back(details::create(adapter_settings, this, _dbs));
             _adapters.back()->init(adapter_settings);
         }
 

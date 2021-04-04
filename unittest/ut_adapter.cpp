@@ -34,7 +34,7 @@ TEST_F(ut_adapter, create) {
     {
         struct adapter adapter;
         EXPECT_FALSE(adapter);
-        adapter.make(stub.marker(), stub.db(), 16, 4);
+        adapter.make(stub.marker(), nullptr, stub.db(), 16, 4);
         EXPECT_TRUE(adapter);
 
         EXPECT_EQ(stub.db(), adapter.database());
@@ -51,7 +51,7 @@ TEST_F(ut_adapter, create) {
 
 TEST_F(ut_adapter, get_next_by_id) {
     struct adapter adapter;
-    adapter.make(stub.marker(), stub.db(), 16, 4);
+    adapter.make(stub.marker(), nullptr, stub.db(), 16, 4);
 
     auto renewal = adapter.get_next(1);
     ASSERT_TRUE(renewal);
@@ -63,7 +63,7 @@ TEST_F(ut_adapter, get_next_by_id) {
 
 TEST_F(ut_adapter, get_next_by_symbol) {
     struct adapter adapter;
-    adapter.make(stub.marker(), stub.db(), 16, 4);
+    adapter.make(stub.marker(), nullptr, stub.db(), 16, 4);
 
     auto inst    = stub.db()->find(2);
     auto renewal = adapter.get_next(inst.symbol());
@@ -76,7 +76,7 @@ TEST_F(ut_adapter, get_next_by_symbol) {
 
 TEST_F(ut_adapter, get_next_by_mkt_code) {
     struct adapter adapter;
-    adapter.make(stub.marker(), stub.db(), 16, 4);
+    adapter.make(stub.marker(), nullptr, stub.db(), 16, 4);
 
     auto inst    = stub.db()->find(2);
     auto renewal = adapter.get_next_by_mkt_code(inst.mkt_code());
@@ -89,7 +89,7 @@ TEST_F(ut_adapter, get_next_by_mkt_code) {
 
 TEST_F(ut_adapter, notify_connected) {
     struct adapter adapter;
-    adapter.make(stub.marker(), stub.db(), 16, 4);
+    adapter.make(stub.marker(), nullptr, stub.db(), 16, 4);
 
     EXPECT_FALSE(adapter.is_connected());
 
@@ -102,7 +102,7 @@ TEST_F(ut_adapter, notify_connected) {
 
 TEST_F(ut_adapter, notify_subscribed) {
     struct adapter adapter;
-    adapter.make(stub.marker(), stub.db(), 16, 4);
+    adapter.make(stub.marker(), nullptr, stub.db(), 16, 4);
     adapter.notify_subscribed(1);
 
     miu::shm::buffer buf { { stub.marker(), "mkt" }, miu::shm::mode::READ };
@@ -112,7 +112,7 @@ TEST_F(ut_adapter, notify_subscribed) {
 
 TEST_F(ut_adapter, discover) {
     struct adapter adapter;
-    adapter.make(stub.marker(), stub.db(), 16, 4);
+    adapter.make(stub.marker(), nullptr, stub.db(), 16, 4);
 
     miu::shm::buffer buf { { stub.marker(), "mkt" }, miu::shm::mode::READ };
     auto place = miu::mkt::place::open(buf.data());
@@ -126,7 +126,7 @@ TEST_F(ut_adapter, discover) {
 
 TEST_F(ut_adapter, discover_when_disconnected) {
     struct adapter adapter;
-    adapter.make(stub.marker(), stub.db(), 16, 4);
+    adapter.make(stub.marker(), nullptr, stub.db(), 16, 4);
 
     miu::shm::buffer buf { { stub.marker(), "mkt" }, miu::shm::mode::READ };
     auto place = miu::mkt::place::open(buf.data());
@@ -139,7 +139,7 @@ TEST_F(ut_adapter, discover_when_disconnected) {
 
 TEST_F(ut_adapter, discover_subscribed) {
     struct adapter adapter;
-    adapter.make(stub.marker(), stub.db(), 16, 4);
+    adapter.make(stub.marker(), nullptr, stub.db(), 16, 4);
     adapter.notify_subscribed(3);
 
     miu::shm::buffer buf { { stub.marker(), "mkt" }, miu::shm::mode::READ };
@@ -154,7 +154,7 @@ TEST_F(ut_adapter, discover_subscribed) {
 
 TEST_F(ut_adapter, clean_subscribed) {
     struct adapter adapter;
-    adapter.make(stub.marker(), stub.db(), 16, 4);
+    adapter.make(stub.marker(), nullptr, stub.db(), 16, 4);
 
     // suppose that we have 3 subscriptions
     adapter.notify_subscribed(3);
