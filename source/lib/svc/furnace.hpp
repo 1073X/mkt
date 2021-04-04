@@ -54,9 +54,10 @@ class furnace : public svc::furnace {
             _adapters.back()->init(adapter_settings);
         }
 
-        static time::delta const MIN_LAG { 1'000'000 };    // 1s
+        static time::delta const MIN_LAG { 1'000 };     // 1s
+        static time::delta const MAX_LAG { 10'000 };    // 10s
         auto lag = settings.optional<time::delta>("lag", MIN_LAG);
-        add_task("proc", std::max(lag, MIN_LAG), &furnace::proc, this);
+        add_task("proc", std::min(std::max(lag, MIN_LAG), MAX_LAG), &furnace::proc, this);
     }
 
     void quench() override {
