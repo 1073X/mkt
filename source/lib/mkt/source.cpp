@@ -25,6 +25,11 @@ source::source(std::string_view name)
     : _buf({ name, "mkt" }, shm::mode::RDWR) {
 }
 
+std::string_view source::db_name() const {
+    auto place = place::open(_buf.data());
+    return place->db_name();
+}
+
 topic source::subscribe(uint32_t instrument_id) {
     if (_buf) {
         auto place  = place::open(_buf.data());

@@ -14,6 +14,8 @@ class source {
     auto operator!() const { return !_buf; }
     operator bool() const { return !operator!(); }
 
+    std::string_view db_name() const;
+
     topic subscribe(uint32_t instrument_id);
     topic subscribe(ref::symbol);
 
