@@ -10,6 +10,7 @@ namespace miu::mkt {
 
 renewal::renewal(quote_ring* quotes, depth_ring* depths)
     : topic(quotes, depths) {
+    _quotes->set_local_time(time::clock::now());
     _index = _quotes->index();
     QUOTE->set_depth_id(0);    // clear depth
 }
