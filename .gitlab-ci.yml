@@ -52,13 +52,13 @@ delivery:
 testmkt:
     stage: trigger
     script:
-        - curl -X POST -F token=c0b3646ef27206e1dca3ccd72bdb28 -F mkt=master $GITLAB_URL/api/v4/projects/19/trigger/pipeline"
+        - curl -X POST -F token=c0b3646ef27206e1dca3ccd72bdb28 -F mkt=master $GITLAB_URL/api/v4/projects/19/trigger/pipeline
     only:
         - master
 
 mktview:
     stage: trigger
     script:
-        - curl -X POST -F token=30a0dd87601a58d49e9a23ff36bdb4 -F mkt=master $GITLAB_URL/api/v4/projects/20/trigger/pipeline"
+        - curl -X POST -F token=30a0dd87601a58d49e9a23ff36bdb4 -F mkt=master $GITLAB_URL/api/v4/projects/20/trigger/pipeline
     only:
         - master
