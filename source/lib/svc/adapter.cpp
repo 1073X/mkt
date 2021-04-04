@@ -86,7 +86,7 @@ void adapter::discover() {
     if (place->is_connected()) {
         for_each([&](auto quotes) {
             if (quotes->is_observed() && !quotes->is_subscribed()) {
-                log::debug(+"mkt SUBSCRIBE", quotes->id(), quotes->symbol());
+                log::debug(+"mkt SUBSCRIBE", name(), quotes->id(), quotes->symbol());
                 subscribe(_db->find(quotes->id()));
             }
         });
