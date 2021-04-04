@@ -26,6 +26,13 @@ namespace details {
 
         std::unique_ptr<adapter> ptr { create_adapter() };
         ptr->make(name, &dbs[db_name], quote_per_line, num_of_depth);
+
+        log::debug(+"mkt NEW adapter",
+                   name,
+                   +"quote_per_line",
+                   quote_per_line,
+                   +"num_of_depth",
+                   num_of_depth);
         return ptr.release();
     }
 }    // namespace details
@@ -67,6 +74,7 @@ class furnace : public svc::furnace {
         if (now - _last_connect_time > INTERVAL) {
             for (auto adapter : _adapters) {
                 if (!adapter->is_connected()) {
+                    log::debug(+"mkt CONNECT", adapter->name());
                     adapter->connect();
                 }
             }
@@ -86,6 +94,7 @@ class furnace : public svc::furnace {
         }
 
         for (auto adapter : _adapters) {
+            log::debug(+"mkt DISCONNECT", adapter->name());
             adapter->disconnect();
         }
     }

@@ -21,6 +21,8 @@ class adapter {
     auto operator!() const { return !_buf; }
     operator bool() const { return !operator!(); }
 
+    std::string_view name() const;
+
   public:
     auto database() const { return _db; }
 

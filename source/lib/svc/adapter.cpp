@@ -1,5 +1,8 @@
 
 #include "mkt/adapter.hpp"
+
+#include <log/log.hpp>
+
 #include "source/lib/mkt/place.hpp"
 
 namespace miu::mkt {
@@ -18,20 +21,30 @@ void adapter::make(std::string_view name,
     place::make(_buf.data(), _buf.size(), db, quote_per_line, num_of_depth, name);
 }
 
+std::string_view adapter::name() const {
+    return place::open(_buf.data())->name();
+}
+
 bool adapter::is_connected() const {
     return place::open(_buf.data())->is_connected();
 }
 
 void adapter::notify_connected() {
-    place::open(_buf.data())->set_connected(1);
+    auto place = place::open(_buf.data());
+    log::info(+"mkt CONNECTED", place->name());
+    place->set_connected(1);
 }
 
 void adapter::notify_disconnected() {
-    place::open(_buf.data())->set_connected(0);
+    auto place = place::open(_buf.data());
+    log::warn(+"mkt DISCONNECTED", place->name());
+    place->set_connected(0);
 }
 
 void adapter::notify_subscribed(uint16_t instrument_id) {
-    auto quotes = place::open(_buf.data())->get_quotes(instrument_id);
+    auto place  = place::open(_buf.data());
+    auto quotes = place->get_quotes(instrument_id);
+    log::info(+"mkt SUBSCRIBED", place->name(), quotes->id(), quotes->symbol());
     quotes->subscribe();
 }
 
@@ -63,18 +76,28 @@ renewal adapter::get_next_by_mkt_code(std::string_view code) {
 
 void adapter::discover() {
     auto place = place::open(_buf.data());
+
+    auto for_each = [&](auto cb) {
+        for (auto i = 0U; i < place->num_of_instrument(); i++) {
+            cb(place->get_quotes(i));
+        }
+    };
+
     if (place->is_connected()) {
-        for (auto i = 0U; i < place->num_of_instrument(); i++) {
-            auto quotes = place->get_quotes(i);
+        for_each([&](auto quotes) {
             if (quotes->is_observed() && !quotes->is_subscribed()) {
-                subscribe(_db->find(i));
+                log::debug(+"mkt SUBSCRIBE", quotes->id(), quotes->symbol());
+                subscribe(_db->find(quotes->id()));
             }
-        }
+        });
+
     } else {
-        for (auto i = 0U; i < place->num_of_instrument(); i++) {
-            auto quotes = place->get_quotes(i);
-            quotes->unsubscribe();
-        }
+        for_each([&](auto quotes) {
+            if (quotes->is_subscribed()) {
+                log::debug(+"mkt UNSUBSCRIBE", quotes->id(), quotes->symbol());
+                quotes->unsubscribe();
+            }
+        });
     }
 }
 
