@@ -1,7 +1,9 @@
 #pragma once
 
+#include <com/to_string.hpp>
 #include <ref/price.hpp>
 #include <ref/symbol.hpp>
+#include <time/stamp.hpp>
 
 namespace miu::mkt {
 
@@ -16,10 +18,16 @@ class topic {
     auto operator!() const { return !_quotes; }
     operator bool() const { return !operator!(); }
 
+    uint32_t index() const;
     bool is_subscribed() const;
+
+    uint32_t max_depth() const;
 
     uint16_t id() const;
     ref::symbol symbol() const;
+
+    time::stamp local_time() const;
+    time::stamp exchange_time() const;
 
     ref::price bid() const;
     int32_t bid_vol() const;
@@ -47,3 +55,5 @@ class topic {
 };
 
 }    // namespace miu::mkt
+
+DEF_TO_STRING(miu::mkt::topic);

@@ -12,7 +12,7 @@ namespace miu::mkt {
 namespace details {
 
     struct quote_ring {
-        time::stamp time;
+        time::stamp local_time;
         ref::symbol symbol;
         uint32_t id;
         uint32_t mask;
@@ -33,8 +33,8 @@ class quote_ring : public ring<details::quote_ring, quote> {
     }
 
   public:
-    auto time() const { return head()->time; }
-    auto set_time(time::stamp v) { head()->time = v; }
+    auto local_time() const { return head()->local_time; }
+    auto set_local_time(time::stamp v) { head()->local_time = v; }
 
     auto symbol() const { return head()->symbol; }
     auto set_symbol(ref::symbol v) { head()->symbol = v; }

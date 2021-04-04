@@ -7,8 +7,8 @@ namespace miu::mkt {
 
 class quote {
   public:
-    auto time() const { return _time; }
-    auto set_time(time::stamp v) { _time = v; }
+    auto exchange_time() const { return _exchange_time; }
+    auto set_exchange_time(time::stamp v) { _exchange_time = v; }
 
     auto bid() const { return _bid; }
     auto set_bid(ref::price v) { _bid = v; }
@@ -41,7 +41,7 @@ class quote {
     auto set_depth_id(uint32_t v) { _depth_id = v; }
 
   private:
-    time::stamp _time;
+    time::stamp _exchange_time;
     ref::price _bid;
     ref::price _ask;
     ref::price _last;
