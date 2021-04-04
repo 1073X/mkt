@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <stub/ref.hpp>
+#include <thread>
 
 #include "mkt/renewal.hpp"
 #include "source/lib/mkt/place.hpp"
@@ -13,9 +14,11 @@ struct ut_renewal : public testing::Test {
 };
 
 TEST_F(ut_renewal, create) {
+    std::this_thread::sleep_for(miu::time::delta(10));
     auto quotes  = place->get_quotes(2);
     auto depths  = place->get_depths();
     auto renewal = miu::mkt::renewal { quotes, depths };
+    EXPECT_EQ(miu::time::clock::now(), quotes->local_time());
     EXPECT_TRUE(renewal);
 
     EXPECT_FALSE(miu::mkt::renewal {});
