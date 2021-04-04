@@ -10,7 +10,7 @@ namespace miu::mkt {
 static auto do_subscribe(quote_ring* quotes, depth_ring* depths) {
     log::debug(+"mkt SUB",
                quotes->index(),
-               quotes->time(),
+               quotes->local_time(),
                +"MAX:",
                quotes->capacity(),
                +"IDX:",

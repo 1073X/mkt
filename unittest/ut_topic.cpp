@@ -68,3 +68,27 @@ TEST_F(ut_topic, depth) {
     EXPECT_EQ(2.1, topic.ask(2));
     EXPECT_EQ(0, topic.ask_vol(1));
 }
+
+TEST_F(ut_topic, to_string) {
+    auto quotes = place->get_quotes(1);
+    auto depths = place->get_depths();
+    miu::mkt::topic topic { quotes, depths };
+
+    // topic
+    quotes->at(0)->set_bid(10.1);
+    quotes->at(0)->set_ask(11.1);
+    quotes->at(0)->set_last(10.5);
+    quotes->inc_index();
+    topic.refresh();
+    std::cout << miu::com::to_string(topic) << std::endl;
+
+    // depth
+    quotes->at(1)->set_depth_id(1);
+    depths->at(1)->set_bid(1, 10);
+    depths->at(1)->set_ask(1, 11.2);
+    depths->at(1)->set_bid(2, 9.9);
+    depths->at(1)->set_ask(2, 11.3);
+    quotes->inc_index();
+    topic.refresh();
+    std::cout << miu::com::to_string(topic) << std::endl;
+}

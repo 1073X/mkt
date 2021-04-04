@@ -79,8 +79,8 @@ place* place::make(void* buf,
         auto symbol = db->find(i).symbol();
         quotes->set_id(i);
         quotes->set_symbol(symbol);
-        quotes->set_time(time::clock::now());
-        log::debug(+"mkt MAKE QUOTE", i, quotes->time(), +"IDX:", quotes->index(), symbol);
+        quotes->set_local_time(time::clock::now());
+        log::debug(+"mkt MAKE QUOTE", i, quotes->local_time(), +"IDX:", quotes->index(), symbol);
     }
 
     // setting depth ring

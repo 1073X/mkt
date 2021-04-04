@@ -17,7 +17,7 @@ TEST(ut_quote_ring, default) {
     EXPECT_EQ(0U, ring->index());
     EXPECT_EQ(miu::ref::symbol {}, ring->symbol());
     EXPECT_EQ(0U, ring->id());
-    EXPECT_EQ(miu::time::stamp {}, ring->time());
+    EXPECT_EQ(miu::time::stamp {}, ring->local_time());
     EXPECT_EQ(0U, ring->is_observed());
 }
 
@@ -26,8 +26,8 @@ TEST(ut_quote_ring, set_value) {
     auto ring = quote_ring::make(buf, sizeof(buf), 8);
 
     auto time = miu::time::clock::now();
-    ring->set_time(time);
-    EXPECT_EQ(time, ring->time());
+    ring->set_local_time(time);
+    EXPECT_EQ(time, ring->local_time());
 
     auto symbol = miu::ref::symbol { "SSE/STOCK/stkname" };
     ring->set_symbol(symbol);

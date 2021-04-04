@@ -4,7 +4,7 @@
 
 TEST(ut_quote, default) {
     miu::mkt::quote quote;
-    EXPECT_EQ(miu::time::stamp {}, quote.time());
+    EXPECT_EQ(miu::time::stamp {}, quote.exchange_time());
     EXPECT_EQ(0.0, quote.bid());
     EXPECT_EQ(0, quote.bid_vol());
     EXPECT_EQ(0.0, quote.ask());
@@ -21,8 +21,8 @@ TEST(ut_quote, set_value) {
     miu::mkt::quote quote;
 
     auto time = miu::time::clock::now();
-    quote.set_time(time);
-    EXPECT_EQ(time, quote.time());
+    quote.set_exchange_time(time);
+    EXPECT_EQ(time, quote.exchange_time());
 
     quote.set_bid(1.2);
     EXPECT_EQ(1.2, quote.bid());
