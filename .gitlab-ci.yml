@@ -34,14 +34,18 @@ delivery:
         - mkdir -p $INC_PATH
         - rm -fr $INC_PATH/mkt
         - cp -frv ./include/mkt $INC_PATH
+        - rm -f $INC_PATH/stub/mkt*
+        - cp -frv ./include/stub $INC_PATH
 
         - mkdir -p $DBG_PATH
         - cp -fv debug/libmkt.a $DBG_PATH
         - cp -fv debug/libmktsvc.a $DBG_PATH
+        - cp -fv debug/libmktstub.a $DBG_PATH
 
         - mkdir -p $REL_PATH
         - cp -fv release/libmkt.a $REL_PATH
         - cp -fv release/libmktsvc.a $REL_PATH
+        - cp -fv release/libmktstub.a $DBG_PATH
 
         - mkdir -p $UT_PATH
         - cp -fv release/ut_mkt $UT_PATH
