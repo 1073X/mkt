@@ -69,3 +69,13 @@ TEST_F(ut_source, subscribe_by_symbol) {
 
     EXPECT_FALSE(source.subscribe(miu::ref::symbol("SSE/BOND/ABC")));
 }
+
+TEST_F(ut_source, get_subscribed_topic) {
+    miu::mkt::source source { stub.marker() };
+
+    EXPECT_FALSE(source.get(1));
+
+    miu::shm::buffer buf { { stub.marker(), "mkt" }, 8192 };
+    miu::mkt::place::open(buf.data())->get_quotes(1)->subscribe();
+    EXPECT_TRUE(source.get(1));
+}

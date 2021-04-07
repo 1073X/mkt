@@ -28,8 +28,9 @@ topic stub::subscribe(uint32_t id) {
         return {};
     }
 
-    auto depths = place->get_depths();
-    return { quotes, depths };
+    quotes->observe();
+    quotes->subscribe();
+    return { quotes, place->get_depths() };
 }
 
 void stub::renew(uint32_t id, std::function<void(mkt::quote*)> const& cb) {

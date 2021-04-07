@@ -55,4 +55,13 @@ topic source::subscribe(ref::symbol symbol) {
     return {};
 }
 
+topic source::get(uint32_t instrument_id) {
+    auto place  = place::open(_buf.data());
+    auto quotes = place->get_quotes(instrument_id);
+    if (quotes && quotes->is_subscribed()) {
+        return { quotes, place->get_depths() };
+    }
+    return {};
+}
+
 }    // namespace miu::mkt

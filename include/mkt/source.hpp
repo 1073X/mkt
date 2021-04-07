@@ -19,6 +19,8 @@ class source {
     topic subscribe(uint32_t instrument_id);
     topic subscribe(ref::symbol);
 
+    topic get(uint32_t instrument_id);    // get subscribed topic
+
   private:
     shm::buffer _buf;
 };
