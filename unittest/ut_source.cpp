@@ -28,6 +28,7 @@ struct ut_source : public testing::Test {
 TEST_F(ut_source, create) {
     miu::mkt::source source { stub.marker() };
     EXPECT_TRUE(source);
+    EXPECT_EQ(stub.marker(), source.name());
     EXPECT_EQ(stub.marker(), source.db_name());
     EXPECT_EQ(stub.db()->num_of_instrument(), source.num_of_instrument());
 }

@@ -14,6 +14,7 @@ class source {
     auto operator!() const { return !_buf; }
     operator bool() const { return !operator!(); }
 
+    std::string_view name() const;
     std::string_view db_name() const;
     uint32_t num_of_instrument() const;
 
