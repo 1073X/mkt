@@ -1,6 +1,8 @@
 #pragma once
 
 #include <com/to_string.hpp>
+#include <mkt/depth.hpp>
+#include <mkt/quote.hpp>
 #include <ref/price.hpp>
 #include <ref/symbol.hpp>
 #include <time/stamp.hpp>
