@@ -2,6 +2,7 @@
 
 #include <shm/tempfs.hpp>
 
+#include "source/lib/mkt/place.hpp"
 #include "stub/mkt.hpp"
 
 TEST(ut_stub, database) {
@@ -25,6 +26,11 @@ TEST(ut_stub, subscribe) {
     miu::mkt::stub stub;
     auto topic = stub.subscribe(1);
     EXPECT_TRUE(topic);
+
+    miu::shm::buffer buf { { stub.marker(), "mkt" }, miu::shm::mode::READ };
+    auto place = miu::mkt::place::open(buf.data());
+    EXPECT_TRUE(place->get_quotes(1)->is_subscribed());
+    EXPECT_TRUE(place->get_quotes(1)->is_observed());
 
     EXPECT_FALSE(stub.subscribe(stub.db()->num_of_instrument()));
 }
