@@ -26,8 +26,11 @@ source::source(std::string_view name)
 }
 
 std::string_view source::db_name() const {
-    auto place = place::open(_buf.data());
-    return place->db_name();
+    return place::open(_buf.data())->db_name();
+}
+
+uint32_t source::num_of_instrument() const {
+    return place::open(_buf.data())->num_of_instrument();
 }
 
 topic source::subscribe(uint32_t instrument_id) {

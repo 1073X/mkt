@@ -15,6 +15,7 @@ class source {
     operator bool() const { return !operator!(); }
 
     std::string_view db_name() const;
+    uint32_t num_of_instrument() const;
 
     topic subscribe(uint32_t instrument_id);
     topic subscribe(ref::symbol);
