@@ -25,6 +25,10 @@ source::source(std::string_view name)
     : _buf({ name, "mkt" }, shm::mode::RDWR) {
 }
 
+std::string_view source::name() const {
+    return place::open(_buf.data())->name();
+}
+
 std::string_view source::db_name() const {
     return place::open(_buf.data())->db_name();
 }
