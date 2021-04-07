@@ -9,13 +9,18 @@
 
 namespace miu::mkt {
 
-#define QUOTE _quotes->at(_index)
-#define DEPTH _depths->at(QUOTE->depth_id())
-
 topic::topic(quote_ring* quotes, depth_ring* depths)
     : _quotes(quotes)
     , _depths(depths)
     , _index { _quotes->index() - 1 } {
+}
+
+quote const* topic::quote() const {
+    return _quotes->at(_index);
+}
+
+depth const* topic::depth() const {
+    return _depths->at(quote()->depth_id());
 }
 
 uint32_t topic::index() const {
@@ -35,7 +40,7 @@ bool topic::is_subscribed() const {
 }
 
 uint32_t topic::max_depth() const {
-    return QUOTE->depth_id() > 0 ? depth::max_levels() : 0;
+    return quote()->depth_id() > 0 ? depth::max_levels() : 0;
 }
 
 time::stamp topic::local_time() const {
@@ -43,59 +48,59 @@ time::stamp topic::local_time() const {
 }
 
 time::stamp topic::exchange_time() const {
-    return QUOTE->exchange_time();
+    return quote()->exchange_time();
 }
 
 ref::price topic::bid() const {
-    return QUOTE->bid();
+    return quote()->bid();
 }
 
 ref::price topic::bid(uint32_t lev) const {
-    return DEPTH->bid(lev);
+    return depth()->bid(lev);
 }
 
 int32_t topic::bid_vol(uint32_t lev) const {
-    return DEPTH->bid_vol(lev);
+    return depth()->bid_vol(lev);
 }
 
 int32_t topic::bid_vol() const {
-    return QUOTE->bid_vol();
+    return quote()->bid_vol();
 }
 
 ref::price topic::ask() const {
-    return QUOTE->ask();
+    return quote()->ask();
 }
 
 ref::price topic::ask(uint32_t lev) const {
-    return DEPTH->ask(lev);
+    return depth()->ask(lev);
 }
 
 int32_t topic::ask_vol(uint32_t lev) const {
-    return DEPTH->ask_vol(lev);
+    return depth()->ask_vol(lev);
 }
 
 int32_t topic::ask_vol() const {
-    return QUOTE->ask_vol();
+    return quote()->ask_vol();
 }
 
 ref::price topic::last() const {
-    return QUOTE->last();
+    return quote()->last();
 }
 
 int32_t topic::last_vol() const {
-    return QUOTE->last_vol();
+    return quote()->last_vol();
 }
 
 ref::price topic::turnover() const {
-    return QUOTE->turnover();
+    return quote()->turnover();
 }
 
 int32_t topic::total_vol() const {
-    return QUOTE->total_vol();
+    return quote()->total_vol();
 }
 
 int32_t topic::open_interest() const {
-    return QUOTE->open_interest();
+    return quote()->open_interest();
 }
 
 uint32_t topic::refresh() {

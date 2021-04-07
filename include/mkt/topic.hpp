@@ -18,6 +18,9 @@ class topic {
     auto operator!() const { return !_quotes; }
     operator bool() const { return !operator!(); }
 
+    class quote const* quote() const;
+    class depth const* depth() const;
+
     uint32_t index() const;
     bool is_subscribed() const;
 
