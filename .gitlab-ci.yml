@@ -45,7 +45,7 @@ delivery:
         - mkdir -p $REL_PATH
         - cp -fv release/libmkt.a $REL_PATH
         - cp -fv release/libmktsvc.a $REL_PATH
-        - cp -fv release/libmktstub.a $DBG_PATH
+        - cp -fv release/libmktstub.a $REL_PATH
 
         - mkdir -p $UT_PATH
         - cp -fv release/ut_mkt $UT_PATH
